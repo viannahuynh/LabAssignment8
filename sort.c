@@ -1,20 +1,139 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 int extraMemoryAllocated;
 
 // implements heap sort
 // extraMemoryAllocated counts bytes of memory allocated
+void heapify(int arr[], int size, int i)
+{
+	// largest is right child
+	int temp;
+	int max = i;
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
+
+	// if left child is larger than root(parent)
+	if (left < size && arr[left]> arr[max])
+	{
+		// set the max val to left val
+		max = left;
+	}
+	// if right child larger than largest so far
+	if (right < size && arr[right]>arr[max])
+	{
+		// set the max val to right val
+		max = right;
+	}
+
+	// If largest is not root
+	if (max != i)
+	{
+		// swap
+		temp = arr[i];
+		arr[i] = arr[max];
+		arr[max] = temp;
+
+		// recursively heapify the subtree
+		heapify(arr, size, max);
+	}
+}
+	
 void heapSort(int arr[], int n)
 {
+	int temp;
+	int x = n/2 -1;
+	int y = n - 1;
+
+	for (int i = x; i >= 0; i --)
+	{
+		heapify(arr, n, i);
+	}
+
+	for (int i = y; i >= 0; i -- )
+	{
+		temp = arr[0];
+		arr[0] = arr[i];
+		arr[i] = temp;
+
+		heapify(arr, i, 0);
+	}
 }
 
 
 // implement merge sort
 // extraMemoryAllocated counts bytes of extra memory allocated
+void merge (int arr[], int l, int m, int r)
+{
+	int *temp, i, len, cout1, cout2, index;
+
+	len = r - l + 1;
+	temp = (int*)malloc(len*sizeof(int));
+
+	cout1 = l;
+	cout2 = m +1;
+
+	index = 0;
+
+	// copy array into temp array
+	while((cout1 <= m)&&(cout2 <= r))
+	{
+		if (arr[cout1] < arr[cout2])
+		{
+			temp[index] = arr[cout1];
+			cout1++;
+			index++;
+		}
+		else
+		{
+			temp[index] = arr[cout2];
+			index++;
+			cout2++;
+		}	
+	}
+		
+	while (cout1 <= m)
+	{
+		temp[index] = arr[cout1];
+		index++;
+		cout1++;
+	}
+
+	while (cout2 <= r)
+	{
+		temp[index] = arr[cout2];
+		index++;
+		cout2++;
+	}
+	
+
+	for (i = l; i <= r; i++)
+	{
+		arr[i] = temp[i-l];
+	}
+
+	free(temp);
+}
+
 void mergeSort(int pData[], int l, int r)
 {
+	if (l < r)
+	{
+		// find the middle point to divide the array into two halves
+		int m = (l+r)/2;
+
+		//call mergeSort for first half
+		mergeSort(pData, l, m);
+
+		// call mergeSort for second half
+		mergeSort(pData, m+1, r);
+
+		merge(pData, l, m, r);
+
+		extraMemoryAllocated += sizeof(l) + sizeof(r);
+	}
 }
 
 // parses input file to an integer array
@@ -56,6 +175,11 @@ void printArray(int pData[], int dataSz)
 	for (i=0;i<100;++i)
 	{
 		printf("%d ",pData[i]);
+		if(i >= dataSz)
+		{
+			printf("\n\n");
+			return;
+		}
 	}
 	printf("\n\t");
 	
